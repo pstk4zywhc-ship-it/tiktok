@@ -6,32 +6,32 @@ from telegram.ext import ApplicationBuilder, ContextTypes, CommandHandler, Messa
 TOKEN = "8558689070:AAEghtAedZya9RZ1S22sS0x8HPTLwQyq_oA"
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    await update.message.reply_text("أهلاً بك! أرسل لي يوزر التيك توك.")
+    await update.message.reply_text("أهلاً! أرسل يوزر التيك توك.")
 
 async def get_tiktok_user(update: Update, context: ContextTypes.DEFAULT_TYPE):
     username = update.message.text.replace("@", "").strip()
-    await update.message.reply_text("جاري الاتصال بالسيرفر...")
+    await update.message.reply_text("جاري جلب المعلومات...")
     
-    # استخدام الرابط الرئيسي للموقع مباشرة
     url = f"https://www.tikwm.com/api/user/info?unique_id={username}"
-    headers = {
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36"
-    }
+    headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36"}
     
     try:
-        # محاولة طلب البيانات
-        response = requests.get(url, headers=headers, timeout=25).json()
+        response = requests.get(url, headers=headers, timeout=20).json()
         
         if response.get("code") == 0:
             user = response["data"]["user"]
             stats = response["data"]["stats"]
-            avatar_url = user.get('avatar')
-            region = user.get('region', 'غير متاح')
+            
+            # محاولة جلب الدولة من Region أو من كود اللغة (Language) كبديل
+            region = user.get('region') or user.get('language') or "غير متاح"
+            
+            # محاولة جلب الصورة من مصدرين
+            avatar_url = user.get('avatar_medium') or user.get('avatar')
             
             caption = (
                 f"👤 الاسم: {user.get('nickname')}\n"
                 f"🆔 اليوزر: @{user.get('unique_id')}\n"
-                f"🌍 الدولة: {region}\n"
+                f"🌍 الدولة/اللغة: {region}\n"
                 f"👥 المتابعون: {stats.get('followerCount')}\n"
                 f"❤️ الإعجابات: {stats.get('heartCount')}\n"
                 f"📝 البايو: {user.get('signature')}"
@@ -42,10 +42,10 @@ async def get_tiktok_user(update: Update, context: ContextTypes.DEFAULT_TYPE):
             else:
                 await update.message.reply_text(caption)
         else:
-            await update.message.reply_text("لم يتم العثور على المستخدم، تأكد من اليوزر.")
+            await update.message.reply_text("لم أجد حساباً بهذا اليوزر، تأكد من الكتابة بدون أخطاء.")
             
     except Exception as e:
-        await update.message.reply_text(f"فشل الاتصال: {str(e)}")
+        await update.message.reply_text(f"خطأ: {str(e)}")
 
 if __name__ == '__main__':
     app = ApplicationBuilder().token(TOKEN).build()
