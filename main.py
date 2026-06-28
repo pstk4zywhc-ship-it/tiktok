@@ -24,8 +24,9 @@ async def get_tiktok_user(update: Update, context: ContextTypes.DEFAULT_TYPE):
             user = response["data"]["user"]
             stats = response["data"]["stats"]
             avatar_url = user.get('avatar')
-            # استخراج الدولة (Region)
-            region = user.get('region', 'غير معروف')
+            
+            # محاولة جلب الدولة من أكثر من مكان
+            region = user.get('region') or response["data"].get('region') or "غير متاح"
             
             caption = (
                 f"👤 الاسم: {user.get('nickname')}\n"
