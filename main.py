@@ -6,7 +6,7 @@ from telegram.ext import ApplicationBuilder, ContextTypes, CommandHandler, Messa
 TOKEN = "8558689070:AAEghtAedZya9RZ1S22sS0x8HPTLwQyq_oA"
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    await update.message.reply_text("أهلاً بك! أرسل لي يوزر التيك توك.")
+    await update.message.reply_text("أهلاً بك! أرسل لي يوزر التيك توك وسأجلب لك معلوماته.")
 
 async def get_tiktok_user(update: Update, context: ContextTypes.DEFAULT_TYPE):
     username = update.message.text.replace("@", "").strip()
@@ -24,10 +24,13 @@ async def get_tiktok_user(update: Update, context: ContextTypes.DEFAULT_TYPE):
             user = response["data"]["user"]
             stats = response["data"]["stats"]
             avatar_url = user.get('avatar')
+            # استخراج الدولة (Region)
+            region = user.get('region', 'غير معروف')
             
             caption = (
                 f"👤 الاسم: {user.get('nickname')}\n"
                 f"🆔 اليوزر: @{user.get('unique_id')}\n"
+                f"🌍 الدولة: {region}\n"
                 f"👥 المتابعون: {stats.get('followerCount')}\n"
                 f"❤️ الإعجابات: {stats.get('heartCount')}\n"
                 f"📝 البايو: {user.get('signature')}"
