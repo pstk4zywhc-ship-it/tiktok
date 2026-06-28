@@ -11,26 +11,37 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
 async def get_tiktok_user(update: Update, context: ContextTypes.DEFAULT_TYPE):
     username = update.message.text.replace("@", "").strip()
     await update.message.reply_text("جاري البحث...")
+    
     url = f"https://www.tikwm.com/api/user/info?unique_id={username}"
+    headers = {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
+    }
+    
     try:
-        response = requests.get(url, timeout=10).json()
+        response = requests.get(url, headers=headers, timeout=20).json()
+        
         if response.get("code") == 0:
             user = response["data"]["user"]
             stats = response["data"]["stats"]
             avatar_url = user.get('avatar')
+            
             caption = (
                 f"👤 الاسم: {user.get('nickname')}\n"
+                f"🆔 اليوزر: @{user.get('unique_id')}\n"
                 f"👥 المتابعون: {stats.get('followerCount')}\n"
-                f"❤️ الإعجابات: {stats.get('heartCount')}"
+                f"❤️ الإعجابات: {stats.get('heartCount')}\n"
+                f"📝 البايو: {user.get('signature')}"
             )
+            
             if avatar_url:
                 await update.message.reply_photo(photo=avatar_url, caption=caption)
             else:
                 await update.message.reply_text(caption)
         else:
             await update.message.reply_text("لم أجد هذا المستخدم، تأكد من اليوزر.")
+            
     except Exception as e:
-        await update.message.reply_text(f"خطأ: {str(e)}")
+        await update.message.reply_text(f"خطأ في الاتصال: {str(e)}")
 
 if __name__ == '__main__':
     app = ApplicationBuilder().token(TOKEN).build()
