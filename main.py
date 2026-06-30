@@ -1,40 +1,31 @@
-import asyncio
-from aiogram import Bot, Dispatcher, types
-from aiogram.filters import Command
-import yt_dlp
+import os
+import logging
+from telegram import Update
+from telegram.ext import ApplicationBuilder, CommandHandler, ContextTypes
 
-API_TOKEN = '8759630215:AAHgnCzJX-JPwgUqTwZtWdXXVUWR4D-la30'
+# إعداد السجلات (Log) لمعرفة حالة البوت
+logging.basicConfig(
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    level=logging.INFO
+)
 
-bot = Bot(token=API_TOKEN)
-dp = Dispatcher()
+# جلب التوكن من إعدادات الاستضافة (Environment Variables)
+TOKEN = os.environ.get("TOKEN")
 
-@dp.message(Command("start"))
-async def start(message: types.Message):
-    await message.answer("أهلاً بك! أرسل رابط تيك توك لأجلب لك بيانات الفيديو.")
+async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    await update.message.reply_text("أهلاً بك! أنا بوت المباريات جاهز للعمل.")
 
-@dp.message()
-async def process_link(message: types.Message):
-    url = message.text
-    if "tiktok.com" in url:
-        await message.answer("جاري جلب بيانات الفيديو من تيك توك...")
-        
-        try:
-            # استخدام yt_dlp لجلب البيانات
-            ydl_opts = {}
-            with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-                info = ydl.extract_info(url, download=False)
-                title = info.get('title', 'غير معروف')
-                views = info.get('view_count', 'غير متاح')
-                
-                await message.answer(f"✅ تم العثور على الفيديو!\n\n📝 العنوان: {title}\n👁 المشاهدات: {views}")
-        except Exception as e:
-            await message.answer(f"عذراً، لم أتمكن من جلب البيانات. (الرابط قد يكون خاصاً).")
+async def live(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    await update.message.reply_text("هنا ستظهر روابط البث المباشر قريباً.")
+
+if __name__ == '__main__':
+    if not TOKEN:
+        print("خطأ: لم يتم العثور على التوكن! تأكد من إضافته في إعدادات البيئة.")
     else:
-        await message.answer("الرجاء إرسال رابط تيك توك صالح.")
-
-async def main():
-    await dp.start_polling(bot)
-
-if __name__ == "__main__":
-    asyncio.run(main())
-
+        app = ApplicationBuilder().token(TOKEN).build()
+        
+        app.add_handler(CommandHandler("start", start))
+        app.add_handler(CommandHandler("live", live))
+        
+        print("البوت يعمل الآن...")
+        app.run_polling()
