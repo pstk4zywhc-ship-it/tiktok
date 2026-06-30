@@ -1,4 +1,1 @@
-python-telegram-bot
-openai
-yt-dlp
-requests
+pip install aiogram
