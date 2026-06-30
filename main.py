@@ -8,7 +8,7 @@ from aiogram import Bot, Dispatcher, types
 from aiogram.filters import Command
 
 # ضع التوكن الخاص بك هنا
-API_TOKEN = 'YOUR_TOKEN_HERE'
+API_TOKEN = '8759630215:AAHgnCzJX-JPwgUqTwZtWdXXVUWR4D-la30'
 
 bot = Bot(token=API_TOKEN)
 dp = Dispatcher()
